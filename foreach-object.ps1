@@ -32,6 +32,10 @@ ForEach ($File in $Files) {
     Write-host $File.Name
 }
 
+foreach ($file in $Files){
+    Write-Host $File.Name -f Green
+
+}
 
 
 
