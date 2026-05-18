@@ -54,3 +54,30 @@ ForEach-Object {
         Risk = $risk
     }
 }
+
+# CpuStatus
+# Rules:
+# 200 = HIGH
+# 50 = MEDIUM
+# else LOW
+Get-Process |
+    Sort-Object CPU -Descending |
+    Select-Object -First 10 |
+    ForEach-Object {
+
+        $cpu = [math]::Round($_.CPU, 2)
+
+        $cpuStatus =
+            if ($cpu -gt 100) {
+                "HIGH"
+            }
+            else {
+                "OK"
+            }
+
+        [PSCustomObject]@{
+            Name = $_.Name
+            CPU = $cpu
+            CPUStatus = $cpuStatus
+        }
+    }
