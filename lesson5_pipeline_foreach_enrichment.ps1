@@ -60,24 +60,67 @@ ForEach-Object {
 # 200 = HIGH
 # 50 = MEDIUM
 # else LOW
-Get-Process |
-    Sort-Object CPU -Descending |
-    Select-Object -First 10 |
+get-process |
     ForEach-Object {
-
         $cpu = [math]::Round($_.CPU, 2)
 
         $cpuStatus =
-            if ($cpu -gt 100) {
+            if ($cpu -gt 200) {
                 "HIGH"
             }
+            elseif ($cpu -gt 50) {
+                "MEDIUM"
+            }
             else {
-                "OK"
+                "LOW"
             }
 
         [PSCustomObject]@{
             Name = $_.Name
             CPU = $cpu
-            CPUStatus = $cpuStatus
+            CpuStatus = $cpuStatus
+        }
+    }
+
+# ThreadCount
+# Rules:
+# 100 = HIGH
+# 20 = MEDIUM
+# else LOW
+write-host "=== THREAD COUNT ENRICHMENT ==="
+get-process |
+    ForEach-Object {
+        $threads = $_.Threads.Count
+
+        $threadStatus =
+            if ($threads -gt 100) {
+                "HIGH"
+            }
+            elseif ($threads -gt 20) {
+                "MEDIUM"
+            }
+            else {
+                "LOW"
+            }
+
+        [PSCustomObject]@{
+            Name = $_.Name
+            Threads = $threads
+            ThreadStatus = $threadStatus
+        }
+    }
+
+#Filter only HIGH memory processes.
+write-host "=== HIGH MEMORY PROCESSES ==="
+get-process |
+    ForEach-Object {
+        $memoryMB = [math]::Round($_.WorkingSet / 1MB, 2)
+
+        if ($memoryMB -gt 500) {
+            [PSCustomObject]@{
+                ProcessName = $_.Name
+                PID         = $_.Id
+                MemoryMB    = $memoryMB
+            }
         }
     }
